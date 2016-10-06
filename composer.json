@@ -2,7 +2,7 @@
     "name": "l3/cas-bundle",
     "type": "symfony-bundle",
     "description": "PHPCas wrapper for Symfony2",
-    "homepage": "https://github.com/mhetru/CasBundle.git",
+    "homepage": "https://github.com/mhetru/CasBundle",
     "authors": [
         {
             "name": "Pierre Pélisset",
