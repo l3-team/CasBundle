@@ -1,5 +1,5 @@
 {
-    "name": "l3/cas-bundle",
+    "name": "l3/cas-bundle-test",
     "type": "symfony-bundle",
     "description": "PHPCas wrapper for Symfony2",
     "homepage": "https://github.com/mhetru/CasBundle",
