@@ -1,0 +1,8 @@
+services:
+    cas.security.authentication.provider:
+        class: L3\Bundle\CasBundle\Security\CasProvider
+        arguments: ['', '']
+
+    cas.security.authentication.listener:
+        class: L3\Bundle\CasBundle\Security\CasListener
+        arguments: [@security.context, @security.authentication.manager, %cas%]

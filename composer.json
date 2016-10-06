@@ -1,0 +1,26 @@
+{
+    "name": "l3/cas-bundle",
+    "type": "symfony-bundle",
+    "description": "PHPCas wrapper for Symfony2",
+    "homepage": "https://github.com/mhetru/CasBundle.git",
+    "authors": [
+        {
+            "name": "Pierre Pélisset",
+            "email": "pierre.pelisset@univ-lille3.fr"
+        },
+	{
+            "name": "Mathieu Hétru",
+            "email": "mathieu.hetru@univ-lille3.fr"
+        }
+    ],
+    "require": {
+        "php": ">=5.4",
+        "jasig/phpcas": "~1.3",
+	"symfony/symfony": "~2,>=2.7"
+    },
+    "autoload": {
+        "psr-4": { "L3\\Bundle\\CasBundle\\": "" }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
