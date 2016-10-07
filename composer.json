@@ -3,7 +3,7 @@
     "type": "symfony-bundle",
     "description": "PHPCas wrapper for Symfony2",
     "homepage": "https://github.com/mhetru/CasBundle",
-    "license": "(c) Copyright Université Lille3 - Charles de Gaulle",
+    "license": "(c) Copyright Universite Lille3 - Charles de Gaulle",
     "authors": [
         {
             "name": "Pierre Pélisset",
