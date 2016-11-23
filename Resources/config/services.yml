@@ -5,4 +5,4 @@ services:
 
     cas.security.authentication.listener:
         class: L3\Bundle\CasBundle\Security\CasListener
-        arguments: [@security.context, @security.authentication.manager, %cas%]
+        arguments: ['@security.context', '@security.authentication.manager', %cas%]
