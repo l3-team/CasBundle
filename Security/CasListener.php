@@ -8,16 +8,16 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\SecurityContextInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Http\Firewall\ListenerInterface;
 
 class CasListener implements ListenerInterface {
-    protected $securityContext;
+    protected $tokenStorage;
     protected $authenticationManager;
     protected $config;
 
-    public function __construct(SecurityContextInterface $securityContext, AuthenticationManagerInterface $authenticationManager, $config) {
-        $this->securityContext = $securityContext;
+    public function __construct(TokenStorageInterface $tokenStorage, AuthenticationManagerInterface $authenticationManager, $config) {
+        $this->tokenStorage = $tokenStorage;
         $this->authenticationManager = $authenticationManager;
         $this->config = $config;
     }
@@ -62,7 +62,7 @@ class CasListener implements ListenerInterface {
 				$token = new CasToken();
 				$token->setUser($_SESSION['cas_user']);
 			}
-			$this->securityContext->setToken($this->authenticationManager->authenticate($token));
+			$this->tokenStorage->setToken($this->authenticationManager->authenticate($token));
 			return;
 		}
 
@@ -71,7 +71,7 @@ class CasListener implements ListenerInterface {
 
         try {
             $authToken = $this->authenticationManager->authenticate($token);
-            $this->securityContext->setToken($authToken);
+            $this->tokenStorage->setToken($authToken);
         } catch(AuthenticationException $failed) {
             $response = new Response();
             $response->setStatusCode(403);
