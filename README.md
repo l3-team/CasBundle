@@ -98,9 +98,10 @@ security:
         default:
             anonymous: ~
 ```
-3. add a variable casLoginTarget in your files app/config/parameters.yml.dist and app/config/parameters.yml NOT under l3_cas
+3. add a variables cas_host and casLoginTarget in your files app/config/parameters.yml.dist and app/config/parameters.yml NOT under l3_cas
 ```
-        cas_login_target: https://your_web_path_application.com
+        cas_login_target: httpi://your_web_path_application.com
+        cas_host: cas-test.univ-lille3.fr
 ```
 4. create a login route and force route in your DefaultController in your application:
 ```
