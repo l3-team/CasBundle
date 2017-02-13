@@ -1,14 +1,22 @@
-Bundle CAS for Symfony2.
+Symfony 2/3 Cas Bundle
 
-Allow wrappe PHPCas with authentication Symfony2. Support the Single Sign Out in contrary of BeSimpleSSoBundle
+This bundle is a dependancy based wrapper for the classic jasig/phpCAS library. 
 
-Installation of Bundle.
+Supports Single Sign Out (no support in BeSimpleSSoBundle).
+
+Installation
 ---
-Install the Bundle with add this line in your require in composer.json :
+Install the Bundle by adding this line to your composer.json :
 ```
 "l3/cas-bundle": "~1.0"
 ```
-Launch the command **composer update** pour install the package and add the Bundle in AppKernel.php
+Then 
+ ```
+$ composer update
+ ```
+ 
+Next, add the Bundle in AppKernel.php
+
 ```
 <?php
 // app/AppKernel.php
@@ -31,19 +39,22 @@ class AppKernel extends Kernel
 }
 ```
 
-Configuration of the bundle
+Bundle Configuration
 ---
-In the configuration files (parameters.yml, config.yml, config_prod.yml...), configure your cas server :
+Add the l3_cas parameters in your config file (parameters.yml, config.yml, config_prod.yml...) :
 ```
 l3_cas:
-    host: cas-test.univ-lille3.fr                       # Serveur CAS
-    path: ~                                             # Chemin de l'application CAS si elle ne se trouve pas à la racine
-    port: 443                                           # Port du serveur CAS
-    ca: false                                           # Définition d'un certificat SSL pour le serveur CAS
-    handleLogoutRequest: true                           # Activiation du Single Sign Out (défaut: false)
-    casLogoutTarget: https://ent-test.univ-lille3.fr    # Page de redirection après la déconnexion de l'application
-    force: true                                         # Permet de checker et non de forcer le CAS, utilisateur : __NO_USER__ si non connecté (Information: Si force désactivé, le Single Sign Out peut ne plus fonctionner).
+    host: cas-test.univ-lille3.fr               # Cas Server
+    path: ~                                             # App path if not in root (eg. cas.test.com/cas)
+    port: 443                                          # Server port
+    ca: false                                           # SSL Certificate
+    handleLogoutRequest: true                           # Single sign out activation (default: false)
+    casLogoutTarget: https://ent-test.univ-lille3.fr    # Redirect path after logout
+    force: true                                         # Allows cas check mode and not force, user : __NO_USER__ if not connected (If force false, Single sign out cant work).
 ```
+Note: remember, you can use config_dev.yml to specify a test cas server in dev environment.
+
+
 
 Then configure the firewall :
 ```
@@ -69,13 +80,13 @@ If you want use the anonymous page :
 1. set **force: false** in app/config/parameters.yml
 ```
 l3_cas:
-    host: cas-test.univ-lille3.fr                       # Serveur CAS
-    path: ~                                             # Chemin de l'application CAS si elle ne se trouve pas à la racine
-    port: 443                                           # Port du serveur CAS
-    ca: false                                           # Définition d'un certificat SSL pour le serveur CAS
-    handleLogoutRequest: true                           # Activiation du Single Sign Out (défaut: false)
-    casLogoutTarget: https://ent-test.univ-lille3.fr    # Page de redirection après la déconnexion de l'application
-    force: false                                        # Permet de checker et non de forcer le CAS, utilisateur : __NO_USER__ si non connecté (Information: Si force désactivé, le Single Sign Out peut ne plus fonctionner).
+    host: cas-test.univ-lille3.fr               # Cas Server
+    path: ~                                             # App path if not in root (eg. cas.test.com/cas)
+    port: 443                                          # Server port
+    ca: false                                           # SSL Certificate
+    handleLogoutRequest: true                           # Single sign out activation (default: false)
+    casLogoutTarget: https://ent-test.univ-lille3.fr    # Redirect path after logout
+    force: false                                         # Allows cas check mode and not force, user : __NO_USER__ if not connected (If force false, Single sign out cant work).
 ```
 2. set **default: anonymous** in app/config/security.yml
 ```
@@ -98,7 +109,7 @@ security:
         default:
             anonymous: ~
 ```
-3. add a variables cas_host and casLoginTarget in your files app/config/parameters.yml.dist and app/config/parameters.yml NOT under l3_cas
+3. add parameters cas_host and casLoginTarget in your files app/config/parameters.yml.dist and app/config/parameters.yml NOT under l3_cas
 ```
         cas_login_target: httpi://your_web_path_application.com
         cas_host: cas-test.univ-lille3.fr
@@ -130,11 +141,11 @@ public function forceAction() {
         return $this->redirect($this->generateUrl('home_page'));
 }
 ```
-5. you can use the route /login in order to call the cas login page and redirect to your application, you becomes connected :)
+5. you can use the route /login in order to call the cas login page and redirect to your application, you become connected :)
 
 Configuration of the Single Sign Out
 ---
-In order to use the Single Sign Out, it is recommanded to disable the system of the sessions PHP in Symfony2 :
+In order to use the Single Sign Out, it is recommanded to disable PHP Sessions in Symfony2 :
 ```
 # app/config/config.yml
 framework:
@@ -143,10 +154,10 @@ framework:
         handler_id:  ~
         save_path: ~
 ```
-**Information :** The bundle check complementary with PHPCas to detect some disconnections requests not fully implemented by PHPCAS (see L3\Bundle\CasBundle\Security\CasListener::checkHandleLogout() for more details)
+**Information :** The bundle checks with PHPCas to detect some disconnections requests not fully implemented by PHPCAS (see L3\Bundle\CasBundle\Security\CasListener::checkHandleLogout() for more details)
 
 UserProvider
 ---
 For LDAP users, you can use the LdapUserBundle (branch ou=people) or LdapUdlUserBundle (branch ou=accounts).
-You can use the simple UidUserBundle who returns the only uid.
-You can use too the FOSUserBundle...
+You can use the simple UidUserBundle which only returns the uid.
+You can also use FOSUserBundle... (Documentation soon)
