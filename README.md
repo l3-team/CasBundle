@@ -161,3 +161,13 @@ UserProvider
 For LDAP users, you can use the LdapUserBundle (branch ou=people) or LdapUdlUserBundle (branch ou=accounts).
 You can use the simple UidUserBundle which only returns the uid.
 You can also use FOSUserBundle... (Documentation soon)
+
+
+Logout route
+---
+If you want use **/logout** route, you can add this in your **routing.yml** :
+```
+l3_logout:
+    path:     /logout
+    defaults: { _controller: L3CasBundle:Logout:logout }
+```
