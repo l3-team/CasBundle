@@ -6,18 +6,18 @@ namespace L3\Bundle\CasBundle\Security;
 use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\SecurityFactoryInterface;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\DefinitionDecorator;
+use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\Reference;
 
 class CasFactory implements SecurityFactoryInterface {
     public function create(ContainerBuilder $container, $id, $config, $userProvider, $defaultEntryPoint) {
         $providerId = 'security.authentication.provider.cas.'.$id;
         $container
-            ->setDefinition($providerId, new DefinitionDecorator('cas.security.authentication.provider'))
+            ->setDefinition($providerId, new ChildDefinition('cas.security.authentication.provider'))
             ->replaceArgument(0, new Reference($userProvider));
 
         $listenerId = 'security.authentication.listener.cas.'.$id;
-        $listener = $container->setDefinition($listenerId, new DefinitionDecorator('cas.security.authentication.listener'));
+        $listener = $container->setDefinition($listenerId, new ChildDefinition('cas.security.authentication.listener'));
 
         return array($providerId, $listenerId, $defaultEntryPoint);
     }
