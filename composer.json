@@ -17,6 +17,7 @@
     "require": {
         "php": ">=7.1.3",
         "jasig/phpcas": "~1.3",
+	"symfony/security-bundle": "~4.0",
 	"symfony/framework-bundle": "~4.0"
     },
     "autoload": {
