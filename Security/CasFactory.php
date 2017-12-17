@@ -8,6 +8,8 @@ use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\Reference;
+use L3\Bundle\CasBundle\Security\CasProvider;
+use L3\Bundle\CasBundle\Security\CasListener;
 
 class CasFactory implements SecurityFactoryInterface {
     public function create(ContainerBuilder $container, $id, $config, $userProvider, $defaultEntryPoint) {
