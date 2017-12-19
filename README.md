@@ -1,4 +1,4 @@
-Symfony 2/3 Cas Bundle
+Symfony 2/3/4 Cas Bundle
 
 This bundle is a dependancy based wrapper for the classic jasig/phpCAS library. 
 
@@ -8,14 +8,14 @@ Installation
 ---
 Install the Bundle by adding this line to your composer.json :
 ```
-"l3/cas-bundle": "~1.0"
+"l3/cas-bundle": "~1.1"
 ```
 Then 
  ```
 $ composer update
  ```
  
-Next, add the Bundle in AppKernel.php
+Next, only for Symfony2 or Symfony3, add the Bundle in AppKernel.php
 
 ```
 <?php
@@ -74,6 +74,26 @@ security:
             security: true
             cas: true # Activation du CAS
 ```
+
+Be careful that if you want use the anonymous mode, the bundle cas use the login __NO_USER__, use the security like this :
+//security.yml
+```yml
+    providers:
+        chain_provider:
+            chain:
+                providers: [in_memory, your_userbundle]
+        in_memory:
+            memory:
+                users:
+                    __NO_USER__:
+                        password:
+                        roles: ROLE_ANO
+        your_userbundle:
+            id: your_userbundle
+```
+
+
+
 
 If you want use the anonymous page :
 ---
@@ -160,8 +180,22 @@ UserProvider
 ---
 For LDAP users, you can use the LdapUserBundle (branch ou=people) or LdapUdlUserBundle (branch ou=accounts).
 You can use the simple UidUserBundle which only returns the uid.
-You can also use FOSUserBundle... (Documentation soon)
-
+You can also use FOSUserBundle... like this :
+//security.yml
+```yml
+    providers:
+        chain_provider:
+            chain:
+                providers: [in_memory, fos_userbundle]
+        in_memory:
+            memory:
+                users:
+                    __NO_USER__:
+                        password:
+                        roles: ROLE_ANO
+        fos_userbundle:
+            id: fos_user.user_provider.username
+```
 
 Logout route
 ---
