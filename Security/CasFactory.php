@@ -15,11 +15,11 @@ class CasFactory implements SecurityFactoryInterface {
     public function create(ContainerBuilder $container, $id, $config, $userProvider, $defaultEntryPoint) {
         $providerId = 'security.authentication.provider.cas.'.$id;
         $container
-            ->setDefinition($providerId, new ChildDefinition(CasProvider::class))
+            ->setDefinition($providerId, new ChildDefinition('cas.security.authentication.provider'))
             ->replaceArgument(0, new Reference($userProvider));
 
         $listenerId = 'security.authentication.listener.cas.'.$id;
-	$listener = $container->setDefinition($listenerId, new ChildDefinition(CasListener::class));
+	$listener = $container->setDefinition($listenerId, new ChildDefinition('cas.security.authentication.listener'));
 	
         return array($providerId, $listenerId, $defaultEntryPoint);
     }
