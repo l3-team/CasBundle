@@ -1,5 +1,7 @@
 Symfony 2/3/4 Cas Bundle
 
+(author : Universite Lille3 - Charles de Gaulle)
+
 This bundle is a dependancy based wrapper for the classic jasig/phpCAS library. 
 
 Supports Single Sign Out (no support in BeSimpleSSoBundle).
