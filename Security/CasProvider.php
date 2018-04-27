@@ -20,8 +20,7 @@ class CasProvider implements AuthenticationProviderInterface {
 
         $authenticatedToken = new CasToken($user->getRoles());
         $authenticatedToken->setUser($user);
-
-
+        $authenticatedToken->setAttributes($token->getAttributes());
 
         return $authenticatedToken;
     }
