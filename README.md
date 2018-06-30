@@ -1,6 +1,6 @@
 Symfony 2/3/4 Cas Bundle
 
-(author : Universite Lille3 - Charles de Gaulle)
+(author : Universite Lille)
 
 This bundle is a dependancy based wrapper for the classic jasig/phpCAS library. 
 
@@ -10,7 +10,7 @@ Installation
 ---
 Install the Bundle by adding this line to your composer.json :
 ```
-"l3/cas-bundle": "~1.1"
+"l3/cas-bundle": "~1.0"
 ```
 Then 
  ```
@@ -89,7 +89,7 @@ Be careful that if you want use the anonymous mode, the bundle cas use the login
                 users:
                     __NO_USER__:
                         password:
-                        roles: ROLE_ANO
+                        roles: ROLE_ANON
         your_userbundle:
             id: your_userbundle
 ```
@@ -133,7 +133,7 @@ security:
 ```
 3. add parameters cas_host and casLoginTarget in your files app/config/parameters.yml.dist and app/config/parameters.yml NOT under l3_cas
 ```
-        cas_login_target: httpi://your_web_path_application.com
+        cas_login_target: https://your_web_path_application.com
         cas_host: cas-test.univ-lille3.fr
 ```
 4. create a login route and force route in your DefaultController in your application:
@@ -160,14 +160,16 @@ public function forceAction() {
 
         session_destroy();
 
-        return $this->redirect($this->generateUrl('home_page'));
+        return $this->redirect($this->generateUrl('homepage'));
 }
 ```
 5. you can use the route /login in order to call the cas login page and redirect to your application, you become connected :)
 
+6. Note that in anonymous mode, the bundle returns the user **__NO_USER__** . So your userprovider bundle need to have the user __NO_USER__ in your datas.
+
 Configuration of the Single Sign Out
 ---
-In order to use the Single Sign Out, it is recommanded to disable PHP Sessions in Symfony2 :
+In order to use the Single Sign Out, it is recommanded to disable PHP Sessions in Symfony :
 ```
 # app/config/config.yml
 framework:
@@ -194,7 +196,7 @@ You can also use FOSUserBundle... like this :
                 users:
                     __NO_USER__:
                         password:
-                        roles: ROLE_ANO
+                        roles: ROLE_ANON
         fos_userbundle:
             id: fos_user.user_provider.username
 ```
