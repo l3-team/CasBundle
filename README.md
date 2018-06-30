@@ -160,7 +160,7 @@ You can also use FOSUserBundle... like this :
                 users:
                     __NO_USER__:
                         password:
-                        roles: ROLE_ANO
+                        roles: ROLE_ANON
         fos_userbundle:
             id: fos_user.user_provider.username
 ```
