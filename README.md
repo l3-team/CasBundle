@@ -45,7 +45,7 @@ l3_cas:
     force: true                                         # Permet de checker et non de forcer le CAS, utilisateur : __NO_USER__ si non connecté (Information: Si force désactivé, le Single Sign Out peut ne plus fonctionner).
 ```
 
-Then configure the firewall :
+Next configure the firewall :
 ```
 # app/config/security.yml
 security:
@@ -147,5 +147,29 @@ framework:
 UserProvider
 ---
 For LDAP users, you can use the LdapUserBundle (branch ou=people) or LdapUdlUserBundle (branch ou=accounts).
-You can use the simple UidUserBundle who returns the only uid.
-You can use too the FOSUserBundle...
+You can use the simple UidUserBundle which only returns the uid.
+You can also use FOSUserBundle... like this :
+//security.yml
+```yml
+    providers:
+        chain_provider:
+            chain:
+                providers: [in_memory, fos_userbundle]
+        in_memory:
+            memory:
+                users:
+                    __NO_USER__:
+                        password:
+                        roles: ROLE_ANO
+        fos_userbundle:
+            id: fos_user.user_provider.username
+```
+
+Logout route
+---
+If you want use **/logout** route, you can add this in your **routing.yml** :
+```
+l3_logout:
+    path:     /logout
+    defaults: { _controller: L3CasBundle:Logout:logout }
+```
