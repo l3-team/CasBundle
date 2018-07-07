@@ -1,9 +1,9 @@
 {
     "name": "l3/cas-bundle",
     "type": "symfony-bundle",
-    "description": "PHPCas wrapper for Symfony2",
+    "description": "PHPCas wrapper for Symfony3",
     "homepage": "https://github.com/l3-team/CasBundle",
-    "license": "(c) Copyright Universite Lille3 - Charles de Gaulle",
+    "license": "LGPL-3.0-or-later",
     "authors": [
         {
             "name": "Pierre Pélisset",
@@ -11,7 +11,7 @@
         },
 	{
             "name": "Mathieu Hétru",
-            "email": "mathieu.hetru@univ-lille3.fr"
+            "email": "mathieu.hetru@univ-lille.fr"
         }
     ],
     "require": {
