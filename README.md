@@ -192,12 +192,20 @@ security:
             cas: true # Activation du CAS
 ```
 
-Add parameters cas_host and casLoginTarget in your files app/config/parameters.yml.dist and app/config/parameters.yml (for Symfony2 or Symfony3) and config/services.yaml (for Symfony4) under parameters (NOT under l3_cas)
+For Symfony2 or Symfony3, add parameters cas_host and casLoginTarget in your files app/config/parameters.yml.dist and app/config/parameters.yml (for Symfony2 or Symfony3) and config/services.yaml (for Symfony4) under parameters (NOT under l3_cas)
 ```
 	...
         cas_login_target: https://your_web_path_application.com
         cas_host: cas-test.univ-lille3.fr
 	...
+```
+
+For Symfony4, add parameters cas_host and cas_login_target in your config/services.yaml under parameters (NOT under l3_cas)
+```
+        ...
+        cas_login_target: '%env(string:CAS_LOGIN_TARGET)%'
+        cas_host: '%env(string:CAS_HOST)%'
+        ...
 ```
 
 Create a login route and force route in your DefaultController in your application:
