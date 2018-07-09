@@ -49,7 +49,10 @@ class CasListener implements ListenerInterface {
 			$force = false;
 			if(!isset($_SESSION['cas_user'])) {
 				$auth = \phpCAS::checkAuthentication();
-				if($auth) $_SESSION['cas_user'] = \phpCAS::getUser();
+				if($auth) {
+					$_SESSION['cas_user'] = \phpCAS::getUser();
+					$_SESSION['cas_attributes'] = \phpCAS::getAttributes();
+				}
 				else $_SESSION['cas_user'] = false;
 			}
 		}
@@ -61,6 +64,7 @@ class CasListener implements ListenerInterface {
 			} else {
 				$token = new CasToken();
 				$token->setUser($_SESSION['cas_user']);
+				$token->setAttributes($_SESSION['cas_attributes']);
 			}
 			$this->tokenStorage->setToken($this->authenticationManager->authenticate($token));
 			return;
@@ -68,6 +72,7 @@ class CasListener implements ListenerInterface {
 
         $token = new CasToken();
         $token->setUser(\phpCAS::getUser());
+	$token->setAttributes(\phpCAS::getAttributes());
 
         try {
             $authToken = $this->authenticationManager->authenticate($token);

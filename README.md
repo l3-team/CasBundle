@@ -1,6 +1,6 @@
 Symfony 2/3/4 Cas Bundle
 
-(author : Universite Lille3 - Charles de Gaulle)
+(author : Universite Lille)
 
 This bundle is a dependancy based wrapper for the classic jasig/phpCAS library. 
 
@@ -10,14 +10,16 @@ Installation
 ---
 Install the Bundle by adding this line to your composer.json :
 ```
-"l3/cas-bundle": "~1.1"
+"l3/cas-bundle": "~1.0"
 ```
 Then 
  ```
 $ composer update
  ```
- 
-Next, only for Symfony2 or Symfony3, add the Bundle in AppKernel.php
+
+Declaration of the Bundle in the Kernel of Symfony
+---
+For Symfony2 or Symfony3, add the Bundle in app/AppKernel.php
 
 ```
 <?php
@@ -41,9 +43,20 @@ class AppKernel extends Kernel
 }
 ```
 
+For Symfony4, add the Bundle in config/bundles.php
+```
+<?php
+
+return [
+    ...
+    L3\Bundle\CasBundle\L3CasBundle::class => ['all' => true],
+    ...
+];
+```
+
 Bundle Configuration
 ---
-Add the l3_cas parameters in your config file (parameters.yml, config.yml, config_prod.yml...) :
+For Symfony2 or Symfony3, add the l3_cas parameters in your config file (parameters.yml and parameters.yml.dist) :
 ```
 l3_cas:
     host: cas-test.univ-lille3.fr               # Cas Server
@@ -54,13 +67,43 @@ l3_cas:
     casLogoutTarget: https://ent-test.univ-lille3.fr    # Redirect path after logout
     force: true                                         # Allows cas check mode and not force, user : __NO_USER__ if not connected (If force false, Single sign out cant work).
 ```
-Note: remember, you can use config_dev.yml to specify a test cas server in dev environment.
 
-
-
-Then configure the firewall :
+For Symfony4, add the variables in your config file (.env and .env.dist) :
 ```
-# app/config/security.yml
+...
+###> l3/cas-bundle ###
+CAS_HOST=cas-test.univ-lille3.fr     # Cas Server
+CAS_PATH=~                           # App path if not in root (eg. cas.test.com/cas)
+CAS_PORT=443                         # Server port
+CAS_CA=false                         # SSL Certificate
+CAS_HANDLE_LOGOUT_REQUEST=true       # Single sign out activation (default: false)
+CAS_LOGIN_TARGET=https://server.univ-lille3.fr # Redirect path after login (when use anonymous mode)
+CAS_LOGOUT_TARGET=https://ent-test.univ-lille3.fr    # Redirect path after logout
+CAS_FORCE=true                       # Allows cas check mode and not force, user : __NO_USER__ if not connected (If force false, Single sign out cant work).
+###< l3/cas-bundle ###
+...
+```
+
+And add the l3_cas parameters in your config/services.yml file (under parameters) :
+```
+...
+parameters:
+...
+l3_cas:
+    host: '%env(string:CAS_HOST)%'
+    path: '%env(string:CAS_PATH)%'
+    port: '%env(int:CAS_PORT)%'
+    ca: '%env(bool:CAS_CA)%'
+    handleLogoutRequest: '%env(bool:CAS_HANDLE_LOGOUT_REQUEST)%'
+    casLogoutTarget: '%env(string:CAS_LOGOUT_TARGET)%'
+    force: '%env(bool:CAS_FORCE)%'
+...
+```
+
+Security Configuration
+---
+For Symfony2 or Symfony3 or Symfony4, configure the firewall in the security file app/config/security.yml
+```
 security:
     providers:
             # ...
@@ -77,9 +120,11 @@ security:
             cas: true # Activation du CAS
 ```
 
+Anonymous Configuration
+---
 Be careful that if you want use the anonymous mode, the bundle cas use the login __NO_USER__, use the security like this :
-//security.yml
 ```yml
+security:
     providers:
         chain_provider:
             chain:
@@ -89,30 +134,21 @@ Be careful that if you want use the anonymous mode, the bundle cas use the login
                 users:
                     __NO_USER__:
                         password:
-                        roles: ROLE_ANO
+                        roles: ROLE_ANON
         your_userbundle:
             id: your_userbundle
 ```
 
 
-
-
-If you want use the anonymous page :
----
-1. set **force: false** in app/config/parameters.yml
+Next set force to false in app/config/parameters.yml (for Symfony2 or Symfony3) and in config/services.yaml (for Symfony4) :
 ```
 l3_cas:
-    host: cas-test.univ-lille3.fr               # Cas Server
-    path: ~                                             # App path if not in root (eg. cas.test.com/cas)
-    port: 443                                          # Server port
-    ca: false                                           # SSL Certificate
-    handleLogoutRequest: true                           # Single sign out activation (default: false)
-    casLogoutTarget: https://ent-test.univ-lille3.fr    # Redirect path after logout
+    ...
     force: false                                         # Allows cas check mode and not force, user : __NO_USER__ if not connected (If force false, Single sign out cant work).
 ```
-2. set **default: anonymous** in app/config/security.yml
+
+And for Symfony2 or Symfony3 set **default: anonymous** in app/config/security.yml
 ```
-# app/config/security.yml
 security:
     providers:
             # ...
@@ -131,12 +167,40 @@ security:
         default:
             anonymous: ~
 ```
-3. add parameters cas_host and casLoginTarget in your files app/config/parameters.yml.dist and app/config/parameters.yml NOT under l3_cas
+
+For Symfony4 set **main: anonymous** in config/packages/security.yml
 ```
-        cas_login_target: httpi://your_web_path_application.com
+security:
+    providers:
+            # ...
+
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt|error)|css|images|js)/
+            security: false
+
+        l3_firewall:
+            pattern: ^/
+            security: true
+            cas: true # Activation du CAS
+
+        main:
+            anonymous: ~
+            pattern: ^/
+            security: true
+            cas: true # Activation du CAS
+```
+
+Add parameters cas_host and casLoginTarget in your files app/config/parameters.yml.dist and app/config/parameters.yml (for Symfony2 or Symfony3) and config/services.yaml (for Symfony4) under parameters (NOT under l3_cas)
+```
+	...
+        cas_login_target: https://your_web_path_application.com
         cas_host: cas-test.univ-lille3.fr
+	...
 ```
-4. create a login route and force route in your DefaultController in your application:
+
+Create a login route and force route in your DefaultController in your application:
 ```
 /**
  * @Route("/login", name="login")
@@ -160,16 +224,19 @@ public function forceAction() {
 
         session_destroy();
 
-        return $this->redirect($this->generateUrl('home_page'));
+        return $this->redirect($this->generateUrl('homepage'));
 }
 ```
-5. you can use the route /login in order to call the cas login page and redirect to your application, you become connected :)
+
+Finally you can use the route /login in order to call the cas login page and redirect to your application, then you become connected :)
 
 Configuration of the Single Sign Out
 ---
-In order to use the Single Sign Out, it is recommanded to disable PHP Sessions in Symfony2 :
+In order to use the Single Sign Out, it is recommanded to disable Symfony Sessions in Symfony (so you will use the PHP native sessions).
+
 ```
-# app/config/config.yml
+# app/config/config.yml (for Symfony2 or Symfony3)
+# config/packages/framework.yaml (for Symfony4)
 framework:
     # ...
     session:
@@ -182,6 +249,7 @@ UserProvider
 ---
 For LDAP users, you can use the LdapUserBundle (branch ou=people) or LdapUdlUserBundle (branch ou=accounts).
 You can use the simple UidUserBundle which only returns the uid.
+
 You can also use FOSUserBundle... like this :
 //security.yml
 ```yml
@@ -194,16 +262,24 @@ You can also use FOSUserBundle... like this :
                 users:
                     __NO_USER__:
                         password:
-                        roles: ROLE_ANO
+                        roles: ROLE_ANON
         fos_userbundle:
             id: fos_user.user_provider.username
 ```
 
 Logout route
 ---
-If you want use **/logout** route, you can add this in your **routing.yml** :
+In Symfony 2 or Symfony 3, if you want use **/logout** route in order to call Logout, you can add this in your **routing.yml** :
 ```
 l3_logout:
     path:     /logout
     defaults: { _controller: L3CasBundle:Logout:logout }
+```
+
+In Symfony 4, you can add this in your **routes.yaml** :
+```
+logout:
+    path: /logout
+    defaults: { _controller: 'L3\Bundle\CasBundle\Controller\LogoutController::logoutAction' }
+```
 ```
