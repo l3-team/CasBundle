@@ -1,7 +1,5 @@
 Symfony 2/3/4 Cas Bundle
 
-(author : Universite Lille)
-
 This bundle is a dependancy based wrapper for the classic jasig/phpCAS library. 
 
 Supports Single Sign Out (no support in BeSimpleSSoBundle).
@@ -43,7 +41,7 @@ class AppKernel extends Kernel
 }
 ```
 
-For Symfony4, add the Bundle in config/bundles.php
+For Symfony4, add the Bundle in config/bundles.php (if line not present)
 ```
 <?php
 
@@ -59,13 +57,14 @@ Bundle Configuration
 For Symfony2 or Symfony3, add the l3_cas parameters in your config file (parameters.yml and parameters.yml.dist) :
 ```
 l3_cas:
-    host: cas-test.univ-lille3.fr               # Cas Server
+    host: cas-test.univ-lille3.fr                       # Cas Server
     path: ~                                             # App path if not in root (eg. cas.test.com/cas)
-    port: 443                                          # Server port
+    port: 443                                           # Server port
     ca: false                                           # SSL Certificate
     handleLogoutRequest: true                           # Single sign out activation (default: false)
     casLogoutTarget: https://ent-test.univ-lille3.fr    # Redirect path after logout
     force: true                                         # Allows cas check mode and not force, user : __NO_USER__ if not connected (If force false, Single sign out cant work).
+    gateway: true					# Gateway mode (for use the mode gateway of the Cas Server) set to false if you use micro-services or apis rest.
 ```
 
 For Symfony4, add the variables in your config file (.env and .env.dist) :
@@ -80,6 +79,7 @@ CAS_HANDLE_LOGOUT_REQUEST=true       # Single sign out activation (default: fals
 CAS_LOGIN_TARGET=https://server.univ-lille3.fr # Redirect path after login (when use anonymous mode)
 CAS_LOGOUT_TARGET=https://ent-test.univ-lille3.fr    # Redirect path after logout
 CAS_FORCE=true                       # Allows cas check mode and not force, user : __NO_USER__ if not connected (If force false, Single sign out cant work).
+CAS_GATEWAY=true		     # Gateway mode (for use the mode gateway of the Cas Server) set to false if you use micro-services or apis rest.
 ###< l3/cas-bundle ###
 ...
 ```
@@ -97,6 +97,7 @@ l3_cas:
     handleLogoutRequest: '%env(bool:CAS_HANDLE_LOGOUT_REQUEST)%'
     casLogoutTarget: '%env(string:CAS_LOGOUT_TARGET)%'
     force: '%env(bool:CAS_FORCE)%'
+    gateway: '%env(bool:CAS_GATEWAY)%'
 ...
 ```
 
@@ -168,7 +169,7 @@ security:
             anonymous: ~
 ```
 
-For Symfony4 set **main: anonymous** in config/packages/security.yml
+For Symfony4 set **main: anonymous** in config/packages/security.yaml
 ```
 security:
     providers:
@@ -192,11 +193,13 @@ security:
             cas: true # Activation du CAS
 ```
 
-For Symfony2 or Symfony3, add parameters cas_host and casLoginTarget in your files app/config/parameters.yml.dist and app/config/parameters.yml (for Symfony2 or Symfony3) and config/services.yaml (for Symfony4) under parameters (NOT under l3_cas)
+For Symfony2 or Symfony3, add parameters cas_host and cas_login_target and cas_path and cas_gateway in your files app/config/parameters.yml.dist and app/config/parameters.yml under parameters (NOT under l3_cas)
 ```
 	...
         cas_login_target: https://your_web_path_application.com
         cas_host: cas-test.univ-lille3.fr
+        cas_path: ~
+        cas_gateway: true
 	...
 ```
 
@@ -205,6 +208,8 @@ For Symfony4, add parameters cas_host and cas_login_target in your config/servic
         ...
         cas_login_target: '%env(string:CAS_LOGIN_TARGET)%'
         cas_host: '%env(string:CAS_HOST)%'
+        cas_path: '%env(string:CAS_PATH)%'
+        cas_gateway: '%env(bool:CAS_GATEWAY)%'
         ...
 ```
 
@@ -215,7 +220,7 @@ Create a login route and force route in your DefaultController in your applicati
  */
 public function loginAction() {
         $target = urlencode($this->container->getParameter('cas_login_target'));
-        $url = 'https://'.$this->container->getParameter('cas_host') . '/login?service=';
+        $url = 'https://'.$this->container->getParameter('cas_host') . $this->container->getParameter('cas_path') . '/login?service=';
 
         return $this->redirect($url . $target . '/force');
 }
@@ -226,11 +231,13 @@ public function loginAction() {
  */
 public function forceAction() {
 
-        if (!isset($_SESSION)) {
-                session_start();
-        }
+	if ($this->container->getParameter('cas_gateway')) {
+        	if (!isset($_SESSION)) {
+                	session_start();
+        	}
 
-        session_destroy();
+        	session_destroy();
+	}
 
         return $this->redirect($this->generateUrl('homepage'));
 }
@@ -290,4 +297,15 @@ logout:
     path: /logout
     defaults: { _controller: 'L3\Bundle\CasBundle\Controller\LogoutController::logoutAction' }
 ```
+
+
+Additional Attributes
+---
+The Jasig Cas Server can return additional attributes in addition to the main attribute (generally uid) with the function phpCAS::getAttributes().
+
+You can get the additional attributes in a controller with this code :
+```
+...
+$attributes = $this->get('security.token_storage')->getToken()->getAttributes();
+...
 ```
