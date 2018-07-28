@@ -75,7 +75,7 @@ class CasListener implements ListenerInterface {
                     $token->setUser($_SESSION['cas_user']);
                     $token->setAttributes($_SESSION['cas_attributes']);
                 }
-                $this->securityContext->setToken($this->authenticationManager->authenticate($token));
+                $this->tokenStorage->setToken($this->authenticationManager->authenticate($token));
                 return;
             }
             
@@ -105,7 +105,7 @@ class CasListener implements ListenerInterface {
                         $token = new CasToken(array('ROLE_ANON'));
                         $token->setUser('__NO_USER__');
                     }
-                    $this->securityContext->setToken($this->authenticationManager->authenticate($token));
+                    $this->tokenStorage->setToken($this->authenticationManager->authenticate($token));
                     return;
                 }
             } 
