@@ -26,12 +26,15 @@ class CasListener implements ListenerInterface {
         if(!isset($_SESSION)) session_start();
 
         \phpCAS::setDebug(false);
+
         \phpCAS::client(CAS_VERSION_2_0, $this->getParameter('host'), $this->getParameter('port'), is_null($this->getParameter('path')) ? '' : $this->getParameter('path'), true);
+
         if(is_bool($this->getParameter('ca')) && $this->getParameter('ca') == false) {
             \phpCAS::setNoCasServerValidation();
         } else {
             \phpCAS::setCasServerCACert($this->getParameter('ca'));
         }
+
         if($this->getParameter('handleLogoutRequest')) {
             if($event->getRequest()->request->has('logoutRequest')) {
                 $this->checkHandleLogout($event);
@@ -42,33 +45,69 @@ class CasListener implements ListenerInterface {
         } else {
             \phpCAS::handleLogoutRequests(false);
         }
-        if($this->getParameter('force')) {
-			\phpCAS::forceAuthentication();
-			$force = true;
-		} else {
-			$force = false;
-			if(!isset($_SESSION['cas_user'])) {
-				$auth = \phpCAS::checkAuthentication();
-				if($auth) {
-					$_SESSION['cas_user'] = \phpCAS::getUser();
-					$_SESSION['cas_attributes'] = \phpCAS::getAttributes();
-				}
-				else $_SESSION['cas_user'] = false;
-			}
-		}
 
-		if(!$force) {
-			if(!$_SESSION['cas_user']) {
-				$token = new CasToken(array('ROLE_ANON'));
-				$token->setUser('__NO_USER__');
-			} else {
-				$token = new CasToken();
-				$token->setUser($_SESSION['cas_user']);
-				$token->setAttributes($_SESSION['cas_attributes']);
-			}
-			$this->securityContext->setToken($this->authenticationManager->authenticate($token));
-			return;
-		}
+        // si le mode gateway est activé..
+        if ($this->getParameter('gateway')) {
+            
+            // .. code de pierre pelisset (pour les applis existantes...)
+            
+            if($this->getParameter('force')) {
+                \phpCAS::forceAuthentication();
+                $force = true;
+            } else {
+                $force = false;
+                if(!isset($_SESSION['cas_user'])) {
+                    $auth = \phpCAS::checkAuthentication();
+                    if($auth) {
+                        $_SESSION['cas_user'] = \phpCAS::getUser();
+                        $_SESSION['cas_attributes'] = \phpCAS::getAttributes();
+                    }
+                    else $_SESSION['cas_user'] = false;
+                }
+            }
+            if(!$force) {
+                if(!$_SESSION['cas_user']) {
+                    $token = new CasToken(array('ROLE_ANON'));
+                    $token->setUser('__NO_USER__');
+                } else {
+                    $token = new CasToken();
+                    $token->setUser($_SESSION['cas_user']);
+                    $token->setAttributes($_SESSION['cas_attributes']);
+                }
+                $this->securityContext->setToken($this->authenticationManager->authenticate($token));
+                return;
+            }
+            
+        } else { 
+        
+            // .. sinon code de david .. pour les api rest / microservices et donc le nouvel ent ulille en view js notamment
+            
+            if($this->getParameter('force')) {
+                \phpCAS::forceAuthentication();
+            } else {
+                $authenticated = false;          
+                if($this->getParameter('gateway')) {
+                    $authenticated = \phpCAS::checkAuthentication();
+                } else {
+                    $authenticated = \phpCAS::isAuthenticated();
+                }
+                if(!isset($_SESSION['cas_user'])) { 
+                    if($authenticated) {
+                        $_SESSION['cas_user'] = \phpCAS::getUser();
+                        $_SESSION['cas_attributes'] = \phpCAS::getAttributes();
+                        $token = new CasToken();
+                        $token->setUser($_SESSION['cas_user']);
+                        $token->setAttributes($_SESSION['cas_attributes']);
+                    } else {
+                        //$_SESSION['cas_user'] = false;
+                        $token = new CasToken(array('ROLE_ANON'));
+                        $token->setUser('__NO_USER__');
+                    }
+                    $this->securityContext->setToken($this->authenticationManager->authenticate($token));
+                    return;
+                }
+            } 
+        }
 
         $token = new CasToken();
         $token->setUser(\phpCAS::getUser());
