@@ -1,7 +1,7 @@
 {
     "name": "l3/cas-bundle",
     "type": "symfony-bundle",
-    "description": "PHPCas wrapper for Symfony4",
+    "description": "PHPCas wrapper for Symfony2, Symfony3, Symfony4",
     "homepage": "https://github.com/l3-team/CasBundle",
     "license": "LGPL-3.0-or-later",
     "authors": [
