@@ -8,16 +8,16 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\SecurityContextInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Http\Firewall\ListenerInterface;
 
 class CasListener implements ListenerInterface {
-    protected $securityContext;
+    protected $tokenStorage;
     protected $authenticationManager;
     protected $config;
 
-    public function __construct(SecurityContextInterface $securityContext, AuthenticationManagerInterface $authenticationManager, $config) {
-        $this->securityContext = $securityContext;
+    public function __construct(TokenStorageInterface $tokenStorage, AuthenticationManagerInterface $authenticationManager, $config) {
+        $this->tokenStorage = $tokenStorage;
         $this->authenticationManager = $authenticationManager;
         $this->config = $config;
     }
@@ -26,6 +26,7 @@ class CasListener implements ListenerInterface {
         if(!isset($_SESSION)) session_start();
 
         \phpCAS::setDebug(false);
+
         \phpCAS::client(CAS_VERSION_2_0, $this->getParameter('host'), $this->getParameter('port'), is_null($this->getParameter('path')) ? '' : $this->getParameter('path'), true);
 
         if(is_bool($this->getParameter('ca')) && $this->getParameter('ca') == false) {
@@ -73,7 +74,7 @@ class CasListener implements ListenerInterface {
                     $token->setUser($_SESSION['cas_user']);
                     $token->setAttributes($_SESSION['cas_attributes']);
                 }
-                $this->securityContext->setToken($this->authenticationManager->authenticate($token));
+                $this->tokenStorage->setToken($this->authenticationManager->authenticate($token));
                 return;
             }
             
@@ -102,7 +103,7 @@ class CasListener implements ListenerInterface {
                         $token = new CasToken(array('ROLE_ANON'));
                         $token->setUser('__NO_USER__');
                     }
-                    $this->securityContext->setToken($this->authenticationManager->authenticate($token));
+                    $this->tokenStorage->setToken($this->authenticationManager->authenticate($token));
                     return;
                 }
             } 
@@ -110,11 +111,11 @@ class CasListener implements ListenerInterface {
 
         $token = new CasToken();
         $token->setUser(\phpCAS::getUser());
-        $token->setAttributes(\phpCAS::getAttributes());
+	$token->setAttributes(\phpCAS::getAttributes());
 
         try {
             $authToken = $this->authenticationManager->authenticate($token);
-            $this->securityContext->setToken($authToken);
+            $this->tokenStorage->setToken($authToken);
         } catch(AuthenticationException $failed) {
             $response = new Response();
             $response->setStatusCode(403);
