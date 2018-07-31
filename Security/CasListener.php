@@ -46,6 +46,8 @@ class CasListener implements ListenerInterface {
             \phpCAS::handleLogoutRequests(false);
         }
 
+	/*
+
         // si le mode gateway est activé..
         if ($this->getParameter('gateway')) {
             
@@ -111,6 +113,58 @@ class CasListener implements ListenerInterface {
             } 
         }
 
+	*/
+
+	// si on force l'authentification...
+	if($this->getParameter('force')) {
+
+		// ... alors on appelle la bannière cas (et on revient ici... puis on continue le code, qui contient après et créé le CasToken à partir du \phpCAS::getUser()...
+		\phpCAS::forceAuthentication();
+
+	} else {
+	
+		// sinon c'est qu'on ne force pas l'authentification...
+
+		// INITIALISATION VARIABLES
+		$authenticated = false;
+
+		// si la variable de session cas_user n'existe pas...
+		if (!isset($_SESSION['cas_user'])) {
+		
+			// VERIFICATION CONNEXION CAS
+			if ($this->getParameter('gateway')) {
+				$authenticated = \phpCAS::checkAuthentication();
+			} else {
+				$authenticated = \phpCAS::isAuthenticated();
+			}
+
+			// POSITIONNEMENT DES VARIABLES DE SESSION
+			if ($authenticated) {
+			
+				// ... alors on positionne les variables en session et notamment ce fameux $_SESSION['cas_user']
+				$_SESSION['cas_user'] = \phpCAS::getUser();
+                        	$_SESSION['cas_attributes'] = \phpCAS::getAttributes();
+			} else {
+
+				// ... sinon on le positionne à false!
+				$_SESSION['cas_user'] = false;
+			}
+		}          
+	
+		// POSITIONNEMENT DU CAS TOKEN SELON LES VARIABLES DE SESSION
+		if (!$_SESSION['cas_user']) {
+			$token = new CasToken(array('ROLE_ANON'));
+			$token->setUser('__NO_USER__');
+		} else {
+			$token = new CasToken();
+			$token->setUser($_SESSION['cas_user']);
+			$token->setAttributes($_SESSION['cas_attributes']);
+		}
+        	$this->tokenStorage->setToken($this->authenticationManager->authenticate($token));
+        	return;
+	}
+
+	// on arrive ici quand on a forcé l'authentification...
         $token = new CasToken();
         $token->setUser(\phpCAS::getUser());
 	$token->setAttributes(\phpCAS::getAttributes());
