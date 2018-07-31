@@ -91,7 +91,7 @@ class CasListener implements ListenerInterface {
                 } else {
                     $authenticated = \phpCAS::isAuthenticated();
                 }
-                if(!isset($_SESSION['cas_user'])) { 
+                if ( (!isset($_SESSION['cas_user'])) || ( (isset($_SESSION['cas_user'])) && ($_SESSION['cas_user'] == false) ) ) {
                     if($authenticated) {
                         $_SESSION['cas_user'] = \phpCAS::getUser();
                         $_SESSION['cas_attributes'] = \phpCAS::getAttributes();
