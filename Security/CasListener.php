@@ -46,7 +46,6 @@ class CasListener implements ListenerInterface {
             \phpCAS::handleLogoutRequests(false);
         }
 
-	/*
         // si le mode gateway est activé..
         if ($this->getParameter('gateway')) {
             
@@ -109,8 +108,10 @@ class CasListener implements ListenerInterface {
                 }
             } 
         }
-	*/
-        
+       
+	/*
+	// prévision en vue de la simplification du code...
+ 
         // si on force l'authentification...
         if($this->getParameter('force')) {
 
@@ -125,7 +126,7 @@ class CasListener implements ListenerInterface {
                 $authenticated = false;
 
                 // si la variable de session cas_user n'existe pas...
-                if (!isset($_SESSION['cas_user'])) {
+                //if (!isset($_SESSION['cas_user'])) {
 
                         // VERIFICATION CONNEXION CAS
                         if ($this->getParameter('gateway')) {
@@ -145,7 +146,7 @@ class CasListener implements ListenerInterface {
                                 // ... sinon on le positionne à false!
                                 $_SESSION['cas_user'] = false;
                         }
-                }
+                //}
 
                 // POSITIONNEMENT DU CAS TOKEN SELON LES VARIABLES DE SESSION
                 if (!$_SESSION['cas_user']) {
@@ -159,6 +160,7 @@ class CasListener implements ListenerInterface {
                 $this->securityContext->setToken($this->authenticationManager->authenticate($token));
                 return;
         }
+	*/
 
         // on arrive ici quand on a forcé l'authentification...
         $token = new CasToken();
