@@ -139,6 +139,41 @@ security:
         your_userbundle:
             id: your_userbundle
 ```
+In Symfony4, if you use chain_provider, you should set provider name on all entry (ie l3_firewall and main) firewall (where security is active : **security: true**) in config/packages/security.yaml like this :
+```
+# config/packages/security.yaml
+security:
+    providers:
+        chain_provider:
+            chain:
+                providers: [in_memory, your_userbundle]
+        in_memory:
+            memory:
+                users:
+                    __NO_USER__:
+                        password:
+                        roles: ROLE_ANON
+        your_userbundle:
+            id: your_userbundle
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        l3_firewall:
+            pattern: ^/
+            security: true
+            cas: true # Activation du CAS
+            provider: chain_provider
+            
+        main:
+            pattern: ^/
+            security: true
+            cas: true # Activation du CAS
+            anonymous: true
+            provider: chain_provider
+```
 
 
 Next set force to false in app/config/parameters.yml (for Symfony2 or Symfony3) and in config/services.yaml (for Symfony4) :
