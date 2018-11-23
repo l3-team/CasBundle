@@ -67,7 +67,7 @@ l3_cas:
     gateway: true					# Gateway mode (for use the mode gateway of the Cas Server) set to false if you use micro-services or apis rest.
 ```
 
-For Symfony4, add the variables in your config file (.env and .env.dist) :
+For Symfony4, add the variables in your config file (.env.local and .env) :
 ```
 ...
 ###> l3/cas-bundle ###
