@@ -330,7 +330,7 @@ In Symfony 4, you can add this in your **routes.yaml** :
 ```
 logout:
     path: /logout
-    defaults: { _controller: 'L3\Bundle\CasBundle\Controller\LogoutController::logoutAction' }
+    controller: L3\Bundle\CasBundle\Controller\LogoutController::logoutAction
 ```
 
 
