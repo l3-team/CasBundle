@@ -38,7 +38,7 @@ class CasFactory implements SecurityFactoryInterface {
         return 'cas';
     }
 
-    public function addConfiguration(NodeDefinition $builder) {
+    public function addConfiguration(NodeDefinition $node) {
     }
 
 } 

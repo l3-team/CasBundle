@@ -1,7 +1,7 @@
 {
     "name": "l3/cas-bundle",
     "type": "symfony-bundle",
-    "description": "PHPCas wrapper for Symfony2, Symfony3, Symfony4",
+    "description": "PHPCas wrapper for Symfony2, Symfony3, Symfony4, Symfony5",
     "homepage": "https://github.com/l3-team/CasBundle",
     "license": "LGPL-3.0-or-later",
     "authors": [
@@ -15,10 +15,10 @@
         }
     ],
     "require": {
-        "php": ">=7.1.3",
+        "php": "^7.2.5",
         "jasig/phpcas": "~1.3",
-	"symfony/security-bundle": "~4.0",
-	"symfony/framework-bundle": "~4.0,>=4.2"
+	"symfony/security-bundle": "~5.0",
+	"symfony/framework-bundle": "~5.0"
     },
     "autoload": {
         "psr-4": { "L3\\Bundle\\CasBundle\\": "" }

@@ -5,13 +5,12 @@ namespace L3\Bundle\CasBundle\Security;
 
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Http\Firewall\ListenerInterface;
 
-class CasListener implements ListenerInterface {
+class CasListener {
     protected $tokenStorage;
     protected $authenticationManager;
     protected $config;
@@ -22,7 +21,7 @@ class CasListener implements ListenerInterface {
         $this->config = $config;
     }
 
-    public function handle(GetResponseEvent $event) {
+    public function __invoke(RequestEvent $event) {
         if(!isset($_SESSION)) session_start();
 
         \phpCAS::setDebug(false);
@@ -65,7 +64,6 @@ class CasListener implements ListenerInterface {
                     else $_SESSION['cas_user'] = false;
                 }
             }
-
             if(!$force) {
                 if(!$_SESSION['cas_user']) {
                     $token = new CasToken(array('ROLE_ANON'));
@@ -92,7 +90,6 @@ class CasListener implements ListenerInterface {
                 } else {
                     $authenticated = \phpCAS::isAuthenticated();
                 }
-
                 if ( (!isset($_SESSION['cas_user'])) || ( (isset($_SESSION['cas_user'])) && ($_SESSION['cas_user'] == false) ) ) { 
                     if($authenticated) {
                         $_SESSION['cas_user'] = \phpCAS::getUser();
@@ -111,60 +108,6 @@ class CasListener implements ListenerInterface {
             } 
         }
 
-        /*
-	// prévision en vue de la simplication du code...
-
-	// si on force l'authentification...
-	if($this->getParameter('force')) {
-
-		// ... alors on appelle la bannière cas (et on revient ici... puis on continue le code, qui contient après et créé le CasToken à partir du \phpCAS::getUser()...
-		\phpCAS::forceAuthentication();
-
-	} else {
-	
-		// sinon c'est qu'on ne force pas l'authentification...
-
-		// INITIALISATION VARIABLES
-		$authenticated = false;
-
-		// si la variable de session cas_user n'existe pas...
-		//if (!isset($_SESSION['cas_user'])) {
-		
-			// VERIFICATION CONNEXION CAS
-			if ($this->getParameter('gateway')) {
-				$authenticated = \phpCAS::checkAuthentication();
-			} else {
-				$authenticated = \phpCAS::isAuthenticated();
-			}
-
-			// POSITIONNEMENT DES VARIABLES DE SESSION
-			if ($authenticated) {
-			
-				// ... alors on positionne les variables en session et notamment ce fameux $_SESSION['cas_user']
-				$_SESSION['cas_user'] = \phpCAS::getUser();
-                        	$_SESSION['cas_attributes'] = \phpCAS::getAttributes();
-			} else {
-
-				// ... sinon on le positionne à false!
-				$_SESSION['cas_user'] = false;
-			}
-		//}          
-	
-		// POSITIONNEMENT DU CAS TOKEN SELON LES VARIABLES DE SESSION
-		if (!$_SESSION['cas_user']) {
-			$token = new CasToken(array('ROLE_ANON'));
-			$token->setUser('__NO_USER__');
-		} else {
-			$token = new CasToken();
-			$token->setUser($_SESSION['cas_user']);
-			$token->setAttributes($_SESSION['cas_attributes']);
-		}
-        	$this->tokenStorage->setToken($this->authenticationManager->authenticate($token));
-        	return;
-	}
-        */
-
-	// on arrive ici quand on a forcé l'authentification...
         $token = new CasToken();
         $token->setUser(\phpCAS::getUser());
 	$token->setAttributes(\phpCAS::getAttributes());
