@@ -1,4 +1,4 @@
-Symfony 2/3/4 Cas Bundle
+Symfony 2/3/4/5 Cas Bundle
 
 This bundle is a dependancy based wrapper for the classic jasig/phpCAS library. 
 
@@ -41,7 +41,7 @@ class AppKernel extends Kernel
 }
 ```
 
-For Symfony4, add the Bundle in config/bundles.php (if line not present)
+For Symfony4 and Symfony5, add the Bundle in config/bundles.php (if line not present)
 ```
 <?php
 
@@ -51,6 +51,29 @@ return [
     ...
 ];
 ```
+
+For Symfony5, add the Bundle in src/Kernel.php, simply add the use and build function :
+
+```
+// src/Kernel.php
+namespace App;
+
+use L3\Bundle\CasBundle\Security\CasFactory;
+
+// ...
+
+class Kernel extends BaseKernel
+{
+    public function build(ContainerBuilder $container)
+    {
+        $extension = $container->getExtension('security');
+        $extension->addSecurityListenerFactory(new CasFactory());
+    }
+
+    // ...
+}
+```
+
 
 Bundle Configuration
 ---
@@ -67,7 +90,7 @@ l3_cas:
     gateway: true					# Gateway mode (for use the mode gateway of the Cas Server) set to false if you use micro-services or apis rest.
 ```
 
-For Symfony4, add the variables in your config file (.env and .env.dist) :
+For Symfony4 and Symfony5, add the variables in your config file (.env and .env.dist) :
 ```
 ...
 ###> l3/cas-bundle ###
@@ -84,11 +107,13 @@ CAS_GATEWAY=true		     # Gateway mode (for use the mode gateway of the Cas Serve
 ...
 ```
 
-And add the l3_cas parameters in your config/services.yml file (under parameters) :
+And add the parameters in your config/services.yml file (under parameters) :
 ```
 ...
 parameters:
-...
+    cas_login_target: '%env(string:CAS_LOGIN_TARGET)%'
+    cas_host: '%env(string:CAS_HOST)%'
+
 l3_cas:
     host: '%env(string:CAS_HOST)%'
     path: '%env(string:CAS_PATH)%'
@@ -103,7 +128,7 @@ l3_cas:
 
 Security Configuration
 ---
-For Symfony2 or Symfony3 or Symfony4, configure the firewall in the security file app/config/security.yml
+For Symfony2 or Symfony3 or Symfony4 or Symfony5, configure the firewall in the security file app/config/security.yml
 ```
 security:
     providers:
@@ -204,7 +229,7 @@ security:
             anonymous: ~
 ```
 
-For Symfony4 set **main: anonymous** in config/packages/security.yaml
+For Symfony4 and Symfony5, set **main: anonymous** in config/packages/security.yaml
 ```
 security:
     providers:
@@ -238,7 +263,7 @@ For Symfony2 or Symfony3, add parameters cas_host and cas_login_target and cas_p
 	...
 ```
 
-For Symfony4, add parameters cas_host and cas_login_target in your config/services.yaml under parameters (NOT under l3_cas)
+For Symfony4 and Symfony5, add parameters cas_host and cas_login_target in your config/services.yaml under parameters (NOT under l3_cas)
 ```
         ...
         cas_login_target: '%env(string:CAS_LOGIN_TARGET)%'
@@ -286,7 +311,7 @@ In order to use the Single Sign Out, it is recommanded to disable Symfony Sessio
 
 ```
 # app/config/config.yml (for Symfony2 or Symfony3)
-# config/packages/framework.yaml (for Symfony4)
+# config/packages/framework.yaml (for Symfony4 and Symfony5)
 framework:
     # ...
     session:

@@ -5,13 +5,12 @@ namespace L3\Bundle\CasBundle\Security;
 
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Http\Firewall\ListenerInterface;
 
-class CasListener implements ListenerInterface {
+class CasListener {
     protected $tokenStorage;
     protected $authenticationManager;
     protected $config;
@@ -22,7 +21,7 @@ class CasListener implements ListenerInterface {
         $this->config = $config;
     }
 
-    public function handle(GetResponseEvent $event) {
+    public function __invoke(RequestEvent $event) {
         if(!isset($_SESSION)) session_start();
 
         \phpCAS::setDebug(false);
