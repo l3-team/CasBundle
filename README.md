@@ -52,29 +52,6 @@ return [
 ];
 ```
 
-For Symfony5, add the Bundle in src/Kernel.php, simply add the use and build function :
-
-```
-// src/Kernel.php
-namespace App;
-
-use L3\Bundle\CasBundle\Security\CasFactory;
-
-// ...
-
-class Kernel extends BaseKernel
-{
-    public function build(ContainerBuilder $container)
-    {
-        $extension = $container->getExtension('security');
-        $extension->addSecurityListenerFactory(new CasFactory());
-    }
-
-    // ...
-}
-```
-
-
 Bundle Configuration
 ---
 For Symfony2 or Symfony3, add the l3_cas parameters in your config file (parameters.yml and parameters.yml.dist) :
