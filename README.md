@@ -89,7 +89,10 @@ And add the parameters in your config/services.yml file (under parameters) :
 ...
 parameters:
     cas_login_target: '%env(string:CAS_LOGIN_TARGET)%'
+    cas_logout_target: '%env(string:CAS_LOGOUT_TARGET)%'
     cas_host: '%env(string:CAS_HOST)%'
+    cas_path: '%env(string:CAS_PATH)%'
+    cas_gateway: '%env(bool:CAS_GATEWAY)%'
 
 l3_cas:
     host: '%env(string:CAS_HOST)%'
@@ -233,7 +236,8 @@ security:
 For Symfony2 or Symfony3, add parameters cas_host and cas_login_target and cas_path and cas_gateway in your files app/config/parameters.yml.dist and app/config/parameters.yml under parameters (NOT under l3_cas)
 ```
 	...
-        cas_login_target: https://your_web_path_application.com
+        cas_login_target: https://your_web_path_application.com/
+        cas_logout_target: https://your_web_path_application.com/
         cas_host: cas-test.univ-lille3.fr
         cas_path: ~
         cas_gateway: true
@@ -244,6 +248,7 @@ For Symfony4 and Symfony5, add parameters cas_host and cas_login_target in your 
 ```
         ...
         cas_login_target: '%env(string:CAS_LOGIN_TARGET)%'
+        cas_logout_target: '%env(string:CAS_LOGIN_TARGET)%'
         cas_host: '%env(string:CAS_HOST)%'
         cas_path: '%env(string:CAS_PATH)%'
         cas_gateway: '%env(bool:CAS_GATEWAY)%'
@@ -256,10 +261,11 @@ Create a login route and force route in your DefaultController in your applicati
  * @Route("/login", name="login")
  */
 public function loginAction() {
-        $target = urlencode($this->container->getParameter('cas_login_target'));
-        $url = 'https://'.$this->container->getParameter('cas_host') . $this->container->getParameter('cas_path') . '/login?service=';
+        
+	$url = 'https://'.$this->container->getParameter('cas_host') . $this->container->getParameter('cas_path') . '/login?service=';
+        $target = $this->container->getParameter('cas_login_target');
 
-        return $this->redirect($url . $target . '/force');
+        return $this->redirect($url . urlencode($target . '/force'));
 }
 
 
@@ -335,6 +341,19 @@ logout:
     controller: L3\Bundle\CasBundle\Controller\LogoutController::logoutAction
 ```
 
+In Symfony 5, you must create a logout route in your DefaultController in your application:
+```
+    /**
+     * @Route("/logout", name="logout")
+     */
+    public function logoutAction() {
+        if (($this->getParameter('cas_logout_target') !== null) && (!empty($this->getParameter('cas_logout_target')))) {
+            \phpCAS::logoutWithRedirectService($this->getParameter('cas_logout_target'));
+        } else {
+            \phpCAS::logout();
+        }
+    }
+```
 
 Additional Attributes
 ---
