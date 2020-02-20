@@ -341,7 +341,7 @@ logout:
     controller: L3\Bundle\CasBundle\Controller\LogoutController::logoutAction
 ```
 
-In Symfony 5, you must create a logout route and force route in your DefaultController in your application:
+In Symfony 5, you must create a logout route in your DefaultController in your application:
 ```
     /**
      * @Route("/logout", name="logout")
