@@ -255,7 +255,7 @@ For Symfony4 and Symfony5, add parameters cas_host and cas_login_target in your 
         ...
 ```
 
-Create a login route and force route in your DefaultController in your application:
+For Symfony 2, Symfony 3 and Symfony 4, create a login route and force route in your DefaultController in your application:
 ```
 /**
  * @Route("/login", name="login")
@@ -285,6 +285,34 @@ public function forceAction() {
         return $this->redirect($this->generateUrl('homepage'));
 }
 ```
+
+For Symfony 5, create a login route and force route in your DefaultController in your application:
+```
+    /**
+     * @Route("/login", name="login")
+     */
+    public function login(Request $request) {
+           $url = 'https://'.$this->getParameter('cas_host') . $this->getParameter('cas_path') . '/login?service=';
+           $target = $this->getParameter('cas_login_target');
+           return $this->redirect($url . urlencode($target . '/force'));
+    }
+    
+    /**
+     * @Route("/force", name="force")
+     */
+    public function force(Request $request) {
+
+            if ($this->getParameter('cas_gateway')) {
+                if (!isset($_SESSION)) {
+                        session_start();
+                }
+
+                session_destroy();
+            }
+
+            return $this->redirect($this->generateUrl('index'));
+    }
+``` 
 
 Finally you can use the route /login in order to call the cas login page and redirect to your application, then you become connected :)
 
