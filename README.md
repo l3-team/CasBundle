@@ -1,4 +1,4 @@
-Symfony 2/3/4 Cas Bundle
+Symfony Cas Bundle
 
 This bundle is a dependancy based wrapper for the classic jasig/phpCAS library. 
 
@@ -41,7 +41,7 @@ class AppKernel extends Kernel
 }
 ```
 
-For Symfony4, add the Bundle in config/bundles.php (if line not present)
+For Symfony4 and Symfony5, add the Bundle in config/bundles.php (if line not present)
 ```
 <?php
 
@@ -67,7 +67,7 @@ l3_cas:
     gateway: true					# Gateway mode (for use the mode gateway of the Cas Server) set to false if you use micro-services or apis rest.
 ```
 
-For Symfony4, add the variables in your config file (.env and .env.dist) :
+For Symfony4 and Symfony5, add the variables in your config file (.env and .env.dist) :
 ```
 ...
 ###> l3/cas-bundle ###
@@ -84,11 +84,16 @@ CAS_GATEWAY=true		     # Gateway mode (for use the mode gateway of the Cas Serve
 ...
 ```
 
-And add the l3_cas parameters in your config/services.yml file (under parameters) :
+And add the parameters in your config/services.yml file (under parameters) :
 ```
 ...
 parameters:
-...
+    cas_login_target: '%env(string:CAS_LOGIN_TARGET)%'
+    cas_logout_target: '%env(string:CAS_LOGOUT_TARGET)%'
+    cas_host: '%env(string:CAS_HOST)%'
+    cas_path: '%env(string:CAS_PATH)%'
+    cas_gateway: '%env(bool:CAS_GATEWAY)%'
+
 l3_cas:
     host: '%env(string:CAS_HOST)%'
     path: '%env(string:CAS_PATH)%'
@@ -103,7 +108,7 @@ l3_cas:
 
 Security Configuration
 ---
-For Symfony2 or Symfony3 or Symfony4, configure the firewall in the security file app/config/security.yml
+For Symfony2 or Symfony3 or Symfony4 or Symfony5, configure the firewall in the security file app/config/security.yml
 ```
 security:
     providers:
@@ -204,7 +209,7 @@ security:
             anonymous: ~
 ```
 
-For Symfony4 set **main: anonymous** in config/packages/security.yaml
+For Symfony4 and Symfony5, set **main: anonymous** in config/packages/security.yaml
 ```
 security:
     providers:
@@ -231,33 +236,36 @@ security:
 For Symfony2 or Symfony3, add parameters cas_host and cas_login_target and cas_path and cas_gateway in your files app/config/parameters.yml.dist and app/config/parameters.yml under parameters (NOT under l3_cas)
 ```
 	...
-        cas_login_target: https://your_web_path_application.com
+        cas_login_target: https://your_web_path_application.com/
+        cas_logout_target: https://your_web_path_application.com/
         cas_host: cas-test.univ-lille3.fr
         cas_path: ~
         cas_gateway: true
 	...
 ```
 
-For Symfony4, add parameters cas_host and cas_login_target in your config/services.yaml under parameters (NOT under l3_cas)
+For Symfony4 and Symfony5, add parameters cas_host and cas_login_target in your config/services.yaml under parameters (NOT under l3_cas)
 ```
         ...
         cas_login_target: '%env(string:CAS_LOGIN_TARGET)%'
+        cas_logout_target: '%env(string:CAS_LOGIN_TARGET)%'
         cas_host: '%env(string:CAS_HOST)%'
         cas_path: '%env(string:CAS_PATH)%'
         cas_gateway: '%env(bool:CAS_GATEWAY)%'
         ...
 ```
 
-Create a login route and force route in your DefaultController in your application:
+For Symfony 2, Symfony 3 and Symfony 4, create a login route and force route in your DefaultController in your application:
 ```
 /**
  * @Route("/login", name="login")
  */
 public function loginAction() {
-        $target = urlencode($this->container->getParameter('cas_login_target'));
-        $url = 'https://'.$this->container->getParameter('cas_host') . $this->container->getParameter('cas_path') . '/login?service=';
+        
+	$url = 'https://'.$this->container->getParameter('cas_host') . $this->container->getParameter('cas_path') . '/login?service=';
+        $target = $this->container->getParameter('cas_login_target');
 
-        return $this->redirect($url . $target . '/force');
+        return $this->redirect($url . urlencode($target . '/force'));
 }
 
 
@@ -278,6 +286,34 @@ public function forceAction() {
 }
 ```
 
+For Symfony 5, create a login route and force route in your DefaultController in your application:
+```
+    /**
+     * @Route("/login", name="login")
+     */
+    public function login(Request $request) {
+           $url = 'https://'.$this->getParameter('cas_host') . $this->getParameter('cas_path') . '/login?service=';
+           $target = $this->getParameter('cas_login_target');
+           return $this->redirect($url . urlencode($target . '/force'));
+    }
+    
+    /**
+     * @Route("/force", name="force")
+     */
+    public function force(Request $request) {
+
+            if ($this->getParameter('cas_gateway')) {
+                if (!isset($_SESSION)) {
+                        session_start();
+                }
+
+                session_destroy();
+            }
+
+            return $this->redirect($this->generateUrl('index'));
+    }
+``` 
+
 Finally you can use the route /login in order to call the cas login page and redirect to your application, then you become connected :)
 
 Configuration of the Single Sign Out
@@ -286,7 +322,7 @@ In order to use the Single Sign Out, it is recommanded to disable Symfony Sessio
 
 ```
 # app/config/config.yml (for Symfony2 or Symfony3)
-# config/packages/framework.yaml (for Symfony4)
+# config/packages/framework.yaml (for Symfony4 and Symfony5)
 framework:
     # ...
     session:
@@ -330,9 +366,22 @@ In Symfony 4, you can add this in your **routes.yaml** :
 ```
 logout:
     path: /logout
-    defaults: { _controller: 'L3\Bundle\CasBundle\Controller\LogoutController::logoutAction' }
+    controller: L3\Bundle\CasBundle\Controller\LogoutController::logoutAction
 ```
 
+In Symfony 5, you must create a logout route in your DefaultController in your application:
+```
+    /**
+     * @Route("/logout", name="logout")
+     */
+    public function logoutAction() {
+        if (($this->getParameter('cas_logout_target') !== null) && (!empty($this->getParameter('cas_logout_target')))) {
+            \phpCAS::logoutWithRedirectService($this->getParameter('cas_logout_target'));
+        } else {
+            \phpCAS::logout();
+        }
+    }
+```
 
 Additional Attributes
 ---
