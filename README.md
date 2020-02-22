@@ -1,4 +1,4 @@
-Symfony 2/3/4/5 Cas Bundle
+Symfony Cas Bundle
 
 This bundle is a dependancy based wrapper for the classic jasig/phpCAS library. 
 
