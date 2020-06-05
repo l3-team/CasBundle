@@ -8,3 +8,8 @@ services:
         class: L3\Bundle\CasBundle\Security\CasListener
         arguments: ['@security.token_storage', '@security.authentication.manager', '%cas%']
         public: false
+
+    cas.security.logout.success_handler:
+        class: L3\Bundle\CasBundle\Security\CasLogoutSuccessHandler
+        arguments: ['%cas%']
+        public: false
