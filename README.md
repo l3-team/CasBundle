@@ -240,11 +240,6 @@ For Symfony 5, replace ***anonymous: true*** with ***lazy: true*** like this :
             pattern: ^/
             security: true
             lazy: true
-            provider: chain_provider
-            guard:
-                authenticators:
-                    - cas.security.authentication.authenticator
-
 ```
 
 For Symfony2 or Symfony3, add parameters cas_host and cas_login_target and cas_path and cas_gateway in your files app/config/parameters.yml.dist and app/config/parameters.yml under parameters (NOT under l3_cas)
