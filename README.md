@@ -4,6 +4,8 @@ This bundle is a dependancy based wrapper for the classic jasig/phpCAS library.
 
 Supports Single Sign Out (no support in BeSimpleSSoBundle).
 
+(For Symfony 6, please refer to the [l3/cas-guard-bundle](https://github.com/l3-team/CasGuardBundle) package.)
+
 Installation
 ---
 Install the Bundle by adding this line to your composer.json :
