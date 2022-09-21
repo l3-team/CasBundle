@@ -20,7 +20,7 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder('l3_cas');
         $treeBuilder->getRootNode()
             ->children()
-            ->scalarNode('host')->defaultValue(300)->end()
+            ->scalarNode('host')->defaultValue('please-configure-cas-host')->end()
             ->scalarNode('path')->defaultValue('')->end()
             ->scalarNode('port')->defaultValue(443)->end()
             ->scalarNode('ca')->defaultNull()->end()
