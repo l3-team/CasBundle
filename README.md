@@ -404,3 +404,10 @@ You can get the additional attributes in a controller with this code :
 $attributes = $this->get('security.token_storage')->getToken()->getAttributes();
 ...
 ```
+
+Annotations
+---
+The Route annotations run if you install this package :
+```
+composer require doctrine/annotations
+```
