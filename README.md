@@ -8,14 +8,10 @@ Supports Single Sign Out (no support in BeSimpleSSoBundle).
 
 Installation
 ---
-Install the Bundle by adding this line to your composer.json :
+Install the Bundle with this command :
 ```
-"l3/cas-bundle": "~1.0"
+composer require l3/cas-bundle:~1.0
 ```
-Then 
- ```
-$ composer update
- ```
 
 Declaration of the Bundle in the Kernel of Symfony
 ---
@@ -387,11 +383,62 @@ In Symfony 5, you must create a logout route in your DefaultController in your a
      */
     public function logoutAction() {
         if (($this->getParameter('cas_logout_target') !== null) && (!empty($this->getParameter('cas_logout_target')))) {
+            \phpCAS::client(CAS_VERSION_2_0, $this->getParameter('host'), $this->getParameter('port'), is_null($this->getParameter('path')) ? '' : $this->getParameter('path'), true);
             \phpCAS::logoutWithRedirectService($this->getParameter('cas_logout_target'));
+        } else {
+            \phpCAS::client(CAS_VERSION_2_0, $this->getParameter('host'), $this->getParameter('port'), is_null($this->getParameter('path')) ? '' : $this->getParameter('path'), true);
+            \phpCAS::logout();
+        }
+    }
+```
+
+Logout handler
+---
+In somes applications like EasyAdminBundle, you can need use a logout success handler in order to the call /logout by EasyAdmin use this logout success handler.
+- create src/Handler/AuthenticationHandler.php with this code :
+```
+<?php
+
+namespace App\Handler;
+
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Http\Logout\LogoutSuccessHandlerInterface;
+
+class AuthenticationHandler implements LogoutSuccessHandlerInterface
+{
+    protected $cas_logout_target;
+    
+    public function __construct($cas_logout_target)
+    {
+        $this->cas_logout_target = $cas_logout_target;        
+    }
+    
+    public function onLogoutSuccess(Request $request) : Response
+    {
+        if(!empty($this->cas_logout_target)) {
+            \phpCAS::logoutWithRedirectService($this->cas_logout_target);
         } else {
             \phpCAS::logout();
         }
     }
+}
+```
+- in config/services.yaml add this line under "services:"
+```
+     authentication_handler:
+         class: App\Handler\AuthenticationHandler
+         arguments: ['%cas_logout_target%']
+         public: false
+```
+- in config/packages/security.yaml add this lines (for firewalls under cas: true)
+```
+             logout:
+                 path: /logout
+                 success_handler: authentication_handler
+                 invalidate_session: false
 ```
 
 Additional Attributes
