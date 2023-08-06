@@ -360,6 +360,29 @@ You can also use FOSUserBundle... like this :
             id: fos_user.user_provider.username
 ```
 
+Logout Handler
+---
+In Symfony 2 and Symfony 3, setup a [logout route](#logout-route). For Symfony 4+, add the following to your **security.yml**:
+```yml
+security:
+    providers:
+            # ...
+
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        l3_firewall:
+            pattern: ^/
+            security: true
+            cas: true # Activation du CAS
+            logout:
+                path: logout
+                success_handler: cas.security.logout.success_handler
+```
+
 Logout route
 ---
 In Symfony 2 or Symfony 3, if you want use **/logout** route in order to call Logout, you can add this in your **routing.yml** :
@@ -369,7 +392,7 @@ l3_logout:
     defaults: { _controller: L3CasBundle:Logout:logout }
 ```
 
-In Symfony 4, you can add this in your **routes.yaml** :
+In Symfony 4, its recommended to use a logout `success_handler` instead of using a route. But, if you need a route you can add this in your **routes.yaml** :
 ```
 logout:
     path: /logout
